@@ -1,7 +1,8 @@
 'use client';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { getMe, logout } from '@/services/authService';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import {
   Home,
   PlusCircle,
@@ -13,6 +14,35 @@ import {
 
 function Sidebar() {
   const pathname = usePathname();
+
+  const [user, setUser] = useState(null);
+
+ useEffect(() => {
+  const fetchUser = async () => {
+    try {
+      const res = await getMe();
+      setUser(res.user);
+    } catch (error) {
+      console.log("No autenticado");
+    }
+  };
+
+  fetchUser();
+}, []);
+
+const router = useRouter();
+
+const handleLogout = async () => {
+  try {
+    await logout();
+
+    router.push('/login');
+    router.refresh(); // 🔥 importante
+
+  } catch (error) {
+    console.log("Error al cerrar sesión");
+  }
+};
 
   const navItems = [
     { id: 'home', icon: Home, label: 'Home', href: '/' },
@@ -34,12 +64,17 @@ function Sidebar() {
       label: 'Cargar Datos',
       href: '/indicadores/datos',
     },
-    {
-      id: 'settings',
-      icon: Settings,
-      label: 'Gestión de Entidad',
-      href: '/entidades/crear',
-    },
+     // 🔥 SOLO PARA SUPERADMIN
+  ...(user?.role === 'superadmin'
+    ? [
+        {
+          id: 'settings',
+          icon: Settings,
+          label: 'Gestión de Entidad',
+          href: '/entidades/crear',
+        },
+      ]
+    : []),
   ];
 
   return (
@@ -76,14 +111,14 @@ function Sidebar() {
         })}
       </nav>
 
-      {/* Acción de salida (Redirige al Login sin barras) */}
+      {/* Acción de salida */}
       <div className="mt-auto pb-4">
-        <Link
-          href="/login"
+        <button
+          onClick={handleLogout}
           className="p-4 text-slate-600 hover:text-red-500 transition-all flex items-center justify-center hover:bg-red-900/10 rounded-2xl"
         >
           <LogOut size={22} />
-        </Link>
+        </button>
       </div>
     </aside>
   );

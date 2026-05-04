@@ -22,9 +22,10 @@ export default function LoginPage() {
           description: 'Bienvenido al sistema de Gestión de Indicadores',
         });
 
-      localStorage.setItem('token', response.token);
+        localStorage.setItem('user', JSON.stringify(response.user));
 
       router.push('/');
+      router.refresh(); 
     } catch (error) {
       sileo.error('Error de acceso', {
         description: 'Correo o contraseña incorrectos',

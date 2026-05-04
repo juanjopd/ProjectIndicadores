@@ -51,3 +51,38 @@ export const login = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+export const getMe = async (req, res) => {
+  try {
+    const user = await User.findByPk(req.user.id, {
+      include: Role,
+      attributes: ["id", "name", "email"]
+    });
+
+    res.json({
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        role: user.Role.name
+      }
+    });
+
+  } catch (error) {
+    res.status(500).json({
+      message: error.message
+    });
+  }
+};
+
+export const logout = (req, res) => {
+  res.clearCookie("token", {
+    httpOnly: true,
+    sameSite: "lax",
+    secure: false, // true en producción (HTTPS)
+  });
+
+  return res.json({
+    message: "Sesión cerrada correctamente",
+  });
+};

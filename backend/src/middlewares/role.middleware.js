@@ -1,12 +1,18 @@
 export const authorize = (roles) => {
-	return (req, res, next) => {
-		
-		if(!roles.includes(req.user.role)){
-			return res.status(403).json({
-				message: "No tienes permiso para esta acción"
-			});
-		}
+  return (req, res, next) => {
 
-		next();
-	};
+    if (!req.user || !req.user.role) {
+      return res.status(401).json({
+        message: "Usuario no autenticado correctamente"
+      });
+    }
+
+    if (!roles.includes(req.user.role)) {
+      return res.status(403).json({
+        message: "No tienes permiso para esta acción"
+      });
+    }
+
+    next();
+  };
 };
