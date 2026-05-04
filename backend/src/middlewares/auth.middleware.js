@@ -1,27 +1,25 @@
 import jwt from "jsonwebtoken"; 
 
 export const verifyToken = (req, res, next) => {
-	try {
-		
-		const authHeader = req.headers.authorization;
+  try {
 
-		if(!authHeader){
-			return res.status(401).json({
-				message: "Token requerido"
-			});
-		}
+    const token = req.cookies.token; // 🔥 clave
 
-		const token = authHeader.split(" ")[1];
-		
-		const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    if (!token) {
+      return res.status(401).json({
+        message: "Token requerido"
+      });
+    }
 
-		req.user = decoded;
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-		next();
+    req.user = decoded;
 
-	} catch (error) {
-		return res.status(401).json({
-			message: "Token inválido"
-		});
-	}
+    next();
+
+  } catch (error) {
+    return res.status(401).json({
+      message: "Token inválido"
+    });
+  }
 };
