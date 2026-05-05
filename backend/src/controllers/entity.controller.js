@@ -3,59 +3,48 @@ import User from "../models/User.js";
 import Role from "../models/Role.js";
 
 export const registerEntity = async (req, res) => {
-	try {
-		const { nombre, correo, pass } = req.body;
+  try {
+    const { name, email, pass } = req.body;
 
-		//buscar rol entidad
-		const role = await Role.findOne({
-			where: { name: "entity" }
-		});
+    const role = await Role.findOne({
+      where: { name: "entity" }
+    });
 
-		if(!role){
-			return res.status(400).json({
-				message: "Rol entidad no existe"
-			});
-		}
-		//verificar correo
-		const existUser = await User.findOne({
-			where: { email: correo }
-		});
+    if (!role) {
+      return res.status(400).json({
+        message: "Rol entidad no existe"
+      });
+    }
 
-		if(existUser) {
-			return res.status(400).json({
-				message: "El correo ya esta registrado"
-			});
-		}
+    const existUser = await User.findOne({
+      where: { email }
+    });
 
-		//encriptar contraseña
-		const hashedPassword = await bcrypt.hash(pass, 10);
+    if (existUser) {
+      return res.status(400).json({
+        message: "El correo ya está registrado"
+      });
+    }
 
-		const entity = await User.create({
-			name: nombre,
-			email: correo,
-			password: hashedPassword,
-			roleId: role.id,
-			estado: true
-		});
-	
-		res.status(201).json({
-			message: "entidad creada correctamente",
-			entity: {
-				id: entity.id,
-				name:entity.name,
-				email: entity.email,
-				estado: entity.estado
-			}
-		});
+    const hashedPassword = await bcrypt.hash(pass, 10);
 
-	} catch (error){
-		console.error(error);
-		
-		res.status(500).json({
-			message: "Error al crear entidad"
-		})
-	}
-}
+    const entity = await User.create({
+      name,
+      email,
+      password: hashedPassword,
+      roleId: role.id,
+      estado: true
+    });
+
+    res.status(201).json(entity);
+
+  } catch (error) {
+    console.error("ERROR CREATE ENTITY:", error);
+    res.status(500).json({
+      message: "Error al crear entidad"
+    });
+  }
+};
 
 export const getEntities = async (req, res) => {
 	 try {
@@ -71,11 +60,12 @@ export const getEntities = async (req, res) => {
     }
 
     const entities = await User.findAll({
-      attributes: ["id", "name", "email", "estado"],
-      where: {
-        roleId: role.id
-      }
-    });
+  		attributes: ["id", "name", "email", "estado"],
+ 		where: {
+    		roleId: role.id
+  		},
+  		order: [["createdAt", "DESC"]] 
+});
 
     res.json(entities);
 
@@ -91,57 +81,75 @@ export const getEntities = async (req, res) => {
 
 export const updateEntity = async (req, res) => {
 	try {
-		const { id } = req.params;
-		const { name, email } = req.body;
-		
-		const user = await User.findByPk(id);
+    const { id } = req.params;
+    const { name, email } = req.body;
 
-		if (!user){
-			return res.status(404).json({ message: "Entidad no encontrada" });
-		}
-		
-		await user.update({ name, email });
+    const role = await Role.findOne({
+      where: { name: "entity" }
+    });
 
-		res.json({
-			message: "Entidad actualizada",
-			user
-		});
+    const user = await User.findOne({
+      where: {
+        id,
+        roleId: role.id
+      }
+    });
 
-	} catch (error) {
-		res.status(500).json({ message: "Error actualizando entidad" });
-	}
+    if (!user) {
+      return res.status(404).json({
+        message: "Entidad no encontrada"
+      });
+    }
+
+    await user.update({ name, email });
+
+    res.json({
+      message: "Entidad actualizada",
+      user
+    });
+
+  } catch (error) {
+    res.status(500).json({
+      message: "Error actualizando entidad"
+    });
+  }
 };
 
 export const toggleEntity = async (req, res) => {
  	try {
+    const { id } = req.params;
 
-    	const { id } = req.params;
+    const role = await Role.findOne({
+      where: { name: "entity" }
+    });
 
-    	const user = await User.findByPk(id);
+    const user = await User.findOne({
+      	where: {
+        id,
+        roleId: role.id
+      }
+    });
 
-    	if (!user) {
-      		return res.status(404).json({
-        	message: "Entidad no encontrada"
-      	});
-    	}
+    if (!user) {
+      return res.status(404).json({
+        message: "Entidad no encontrada"
+      });
+    }
 
-    	const nuevoEstado = !user.estado;
+    const nuevoEstado = !user.estado;
 
-    	await user.update({
-      		estado: nuevoEstado
-    	});
+    await user.update({ estado: nuevoEstado });
 
-    	res.json({
-      		message: "Estado actualizado",
-      		entity: user
-    	});
+    res.json({
+      message: "Estado actualizado",
+      entity: user
+    });
 
   } catch (error) {
+    console.error(error);
 
-    	console.error(error);
-
-    	res.status(500).json({
-      	message: "Error cambiando estado"
-    	});
- 	 }
+    res.status(500).json({
+      message: "Error cambiando estado"
+    });
+  }
 };

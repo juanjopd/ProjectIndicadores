@@ -79,9 +79,16 @@ export default function CrearEntidad() {
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
+
           const nuevaEntidad = await createEntity(result.value);
-          setEntidades(prev => [nuevaEntidad, ...prev]);
+
+          // 🔥 FIX IMPORTANTE (asegura formato correcto)
+          const entidadFinal = nuevaEntidad.entity || nuevaEntidad;
+
+          setEntidades(prev => [entidadFinal, ...prev]);
+
           sileo.success('Entidad registrada');
+
         } catch (error) {
           console.error(error);
           sileo.error('No se pudo crear la entidad');
@@ -91,13 +98,13 @@ export default function CrearEntidad() {
   };
 
   /* =========================
-     VER PASSWORD
+     VER PASSWORD (FIX)
   ========================= */
 
-  const verPassword = (pass) => {
+  const verPassword = () => {
     Swal.fire({
-      title: 'Contraseña',
-      text: pass,
+      title: 'Seguridad',
+      text: 'La contraseña no puede ser visualizada',
       icon: 'info'
     });
   };
@@ -141,10 +148,13 @@ export default function CrearEntidad() {
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
+
           const updated = await updateEntity(entidad.id, result.value);
 
+          const entidadFinal = updated.user || updated;
+
           setEntidades(prev =>
-            prev.map(e => e.id === entidad.id ? updated : e)
+            prev.map(e => e.id === entidad.id ? entidadFinal : e)
           );
 
           sileo.success('Entidad actualizada');
@@ -179,8 +189,10 @@ export default function CrearEntidad() {
 
       const updated = await toggleEntity(entidad.id);
 
+      const entidadFinal = updated.entity || updated;
+
       setEntidades(prev =>
-        prev.map(e => e.id === entidad.id ? updated : e)
+        prev.map(e => e.id === entidad.id ? entidadFinal : e)
       );
 
       sileo.success('Estado actualizado');
@@ -264,7 +276,7 @@ export default function CrearEntidad() {
                     </button>
 
                     <button
-                      onClick={() => verPassword(entidad.pass)}
+                      onClick={() => verPassword()}
                       className="p-3 bg-slate-800 hover:bg-slate-700 text-blue-400 rounded-xl"
                     >
                       <Eye size={16} />

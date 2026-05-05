@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import userRoutes from "./routes/user.routes.js";
 import authRoutes from "./routes/auth.routes.js";
+import entityRoutes from "./routes/entity.routes.js"
 import cookieParser from "cookie-parser";
 
 
@@ -24,7 +25,7 @@ app.get("/", (req, res) => {
 
 app.use("/api/users", userRoutes);
 app.use("/api/auth", authRoutes);
-app.use("/api/entity", authRoutes);
+app.use("/api/entity", entityRoutes);
 
 
 
