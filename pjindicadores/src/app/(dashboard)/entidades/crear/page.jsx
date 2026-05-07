@@ -4,7 +4,6 @@ import { Plus, Pencil, Eye, UserX, Building2 } from 'lucide-react';
 import Swal from 'sweetalert2';
 import { useState, useEffect } from 'react';
 import { sileo } from 'sileo';
-
 import {
   createEntity,
   getEntities,

@@ -3,6 +3,7 @@ import dotenv from "dotenv";
 import sequelize from "./src/config/database.js";
 import "./src/models/index.js";
 import { runSeed } from "./src/services/seed.service.js";
+import { seedIndicators } from "./src/seeders/indicator.seed.js";
 
 dotenv.config();
 
@@ -14,6 +15,7 @@ async function startServer() {
 		console.log("Base de datos conectada");
 		
 		await sequelize.sync({ alter: true });
+		await seedIndicators();
 		console.log("Tablas sincronizadas");
 		
 		await runSeed();
