@@ -5,6 +5,21 @@ export const createIndicator = async (data) => {
   return res.data;
 };
 
+export const getIndicators = async () => {
+  const res = await api.get('/indicator');
+  return res.data;
+};
+
+export const deleteIndicator = async (id) => {
+  const res = await api.delete(`/indicator/${id}`);
+  return res.data;
+};
+
+export const updateIndicator = async (id, data) => {
+  const res = await api.put(`/indicator/${id}`, data);
+  return res.data;
+};
+
 export const getTypes = async () => {
   const res = await api.get('/indicator/indicator-types');
   return res.data;
