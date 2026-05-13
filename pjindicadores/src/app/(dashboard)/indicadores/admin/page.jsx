@@ -166,7 +166,8 @@ export default function AdminIndicadores() {
             meta={indicador.meta}
             satisfactorio={indicador.satisfactorio}
             critico={indicador.critico}
-          />
+            years={indicador.years || [new Date().getFullYear()]}
+/>
         );
       }
     },

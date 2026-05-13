@@ -4,6 +4,7 @@ import userRoutes from "./routes/user.routes.js";
 import authRoutes from "./routes/auth.routes.js";
 import entityRoutes from "./routes/entity.routes.js"
 import indicatorRoutes from "./routes/indicator.routes.js"
+import indicatorDataRoutes from './routes/indicatorData.routes.js';
 import cookieParser from "cookie-parser";
 import './models/index.js'
 
@@ -28,6 +29,7 @@ app.use("/api/users", userRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/entity", entityRoutes);
 app.use("/api/indicator", indicatorRoutes);
+app.use('/api/indicator-data', indicatorDataRoutes);
 
 
 

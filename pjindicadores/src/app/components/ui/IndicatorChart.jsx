@@ -1,6 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import {
+  useState,
+  useEffect,
+} from 'react';
 
 import {
   Chart as ChartJS,
@@ -20,6 +23,10 @@ import {
   ChevronRight,
 } from 'lucide-react';
 
+import {
+  getIndicatorData,
+} from '@/services/indicatorDataServices';
+
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -30,54 +37,111 @@ ChartJS.register(
   Legend
 );
 
+const MONTHS = [
+  'Ene',
+  'Feb',
+  'Mar',
+  'Abr',
+  'May',
+  'Jun',
+  'Jul',
+  'Ago',
+  'Sep',
+  'Oct',
+  'Nov',
+  'Dic',
+];
+
 export default function IndicatorChart({
+  indicador,
   meta,
   satisfactorio,
   critico,
 }) {
 
-  const currentYear = new Date().getFullYear();
+  const currentYear =
+    new Date().getFullYear();
 
-  const years = [
-    currentYear,
-    currentYear - 1,
-    currentYear - 2,
-  ];
+  /*
+    SOLO EL AÑO ACTUAL
+  */
+  const years = [currentYear];
 
-  const [yearIndex, setYearIndex] = useState(0);
+  const [yearIndex, setYearIndex] =
+    useState(0);
 
-  const selectedYear = years[yearIndex];
+  const selectedYear =
+    years[yearIndex] || currentYear;
 
-  const labels = [
-    'Ene',
-    'Feb',
-    'Mar',
-    'Abr',
-    'May',
-    'Jun',
-    'Jul',
-    'Ago',
-    'Sep',
-    'Oct',
-    'Nov',
-    'Dic',
-  ];
+  const [chartData, setChartData] =
+    useState([]);
+
+  useEffect(() => {
+
+    loadChartData();
+
+  }, [selectedYear]);
+
+  const loadChartData = async () => {
+
+    try {
+
+      const response =
+        await getIndicatorData(
+          indicador.id,
+          selectedYear
+        );
+
+      const merged = MONTHS.map(
+        (month) => {
+
+          const existing =
+            response.find(
+              (d) =>
+                d.periodo === month
+            );
+
+          return (
+            existing || {
+              periodo: month,
+              logro: 0,
+            }
+          );
+        }
+      );
+
+      setChartData(merged);
+
+    } catch (error) {
+
+      console.error(error);
+
+    }
+  };
 
   const data = {
 
-    labels,
+    labels: MONTHS,
 
     datasets: [
 
-      // BARRAS VACÍAS
+      // BARRAS
       {
         type: 'bar',
 
         label: 'Cumplimiento',
 
-        data: new Array(12).fill(null),
+        data: chartData.map(
+          (d) =>
+            Number(d.logro || 0)
+        ),
 
-        backgroundColor: '#3b82f6',
+        backgroundColor:
+          'rgba(59,130,246,0.85)',
+
+        borderColor: '#3b82f6',
+
+        borderWidth: 1,
 
         borderRadius: 8,
 
@@ -90,7 +154,10 @@ export default function IndicatorChart({
 
         label: 'Meta',
 
-        data: new Array(12).fill(meta),
+        data:
+          new Array(12).fill(
+            Number(meta || 0)
+          ),
 
         borderColor: '#3b82f6',
 
@@ -107,7 +174,12 @@ export default function IndicatorChart({
 
         label: 'Satisfactorio',
 
-        data: new Array(12).fill(satisfactorio),
+        data:
+          new Array(12).fill(
+            Number(
+              satisfactorio || 0
+            )
+          ),
 
         borderColor: '#10b981',
 
@@ -124,7 +196,10 @@ export default function IndicatorChart({
 
         label: 'Crítico',
 
-        data: new Array(12).fill(critico),
+        data:
+          new Array(12).fill(
+            Number(critico || 0)
+          ),
 
         borderColor: '#ef4444',
 
@@ -139,147 +214,167 @@ export default function IndicatorChart({
 
   const options = {
 
-  responsive: true,
+    responsive: true,
 
-  maintainAspectRatio: false,
+    maintainAspectRatio: false,
 
-  layout: {
-    padding: 0,
-  },
-
-  plugins: {
-    legend: {
-      display: false,
-    },
-  },
-
-  elements: {
-    bar: {
-      borderRadius: 8,
-    },
-  },
-
-  scales: {
-
-    y: {
-
-      min: 0,
-      max: 100,
-
-      ticks: {
-        color: '#64748b',
-      },
-
-      grid: {
-        color: '#1e293b',
-      },
+    layout: {
+      padding: 0,
     },
 
-    x: {
+    plugins: {
 
-      ticks: {
-        color: '#64748b',
-      },
-
-      grid: {
+      legend: {
         display: false,
       },
     },
-  },
-};
+
+    elements: {
+
+      bar: {
+        borderRadius: 8,
+      },
+    },
+
+    scales: {
+
+      y: {
+
+        min: 0,
+
+        max: 100,
+
+        ticks: {
+          color: '#64748b',
+        },
+
+        grid: {
+          color: '#1e293b',
+        },
+      },
+
+      x: {
+
+        ticks: {
+          color: '#64748b',
+        },
+
+        grid: {
+          display: false,
+        },
+      },
+    },
+  };
 
   return (
 
-     <div className="w-full h-full flex flex-col">
+    <div className="w-full h-full flex flex-col">
 
-    {/* HEADER */}
+      {/* HEADER */}
 
-    <div className="relative flex items-center justify-center mb-4 h-10">
+      <div className="relative flex items-center justify-center mb-4 h-10">
 
-      {/* LEFT */}
+        {/* LEFT */}
 
-      <button
-        onClick={() =>
-          setYearIndex((prev) =>
-            prev > 0 ? prev - 1 : prev
-          )
-        }
-        className="
-          absolute left-0
-          w-9 h-9
-          rounded-xl
-          bg-[#1e293b]
-          hover:bg-[#334155]
-          transition-all
-          flex items-center justify-center
-          text-white
-        "
-      >
-        <ChevronLeft size={18} />
-      </button>
+        <button
+          disabled={yearIndex === 0}
+          onClick={() =>
+            setYearIndex((prev) =>
+              prev > 0
+                ? prev - 1
+                : prev
+            )
+          }
+          className={`
+            absolute left-0
+            w-9 h-9
+            rounded-xl
+            transition-all
+            flex items-center justify-center
+            ${
+              yearIndex === 0
+                ? 'bg-[#111827] text-slate-700 cursor-not-allowed'
+                : 'bg-[#1e293b] hover:bg-[#334155] text-white'
+            }
+          `}
+        >
+          <ChevronLeft size={18} />
+        </button>
 
-      {/* CENTER */}
+        {/* CENTER */}
 
-      <div className="text-center">
+        <div className="text-center">
 
-        <p className="
-          text-[10px]
-          uppercase
-          tracking-[0.25em]
-          text-slate-500
-          font-black
-        ">
-          Año gráfico
-        </p>
+          <p
+            className="
+              text-[10px]
+              uppercase
+              tracking-[0.25em]
+              text-slate-500
+              font-black
+            "
+          >
+            Año gráfico
+          </p>
 
-        <h2 className="
-          text-white
-          font-black
-          text-2xl
-          leading-none
-        ">
-          {selectedYear}
-        </h2>
+          <h2
+            className="
+              text-white
+              font-black
+              text-2xl
+              leading-none
+            "
+          >
+            {selectedYear}
+          </h2>
+
+        </div>
+
+        {/* RIGHT */}
+
+        <button
+          disabled={
+            yearIndex ===
+            years.length - 1
+          }
+          onClick={() =>
+            setYearIndex((prev) =>
+              prev <
+              years.length - 1
+                ? prev + 1
+                : prev
+            )
+          }
+          className={`
+            absolute right-0
+            w-9 h-9
+            rounded-xl
+            transition-all
+            flex items-center justify-center
+            ${
+              yearIndex ===
+              years.length - 1
+                ? 'bg-[#111827] text-slate-700 cursor-not-allowed'
+                : 'bg-[#1e293b] hover:bg-[#334155] text-white'
+            }
+          `}
+        >
+          <ChevronRight size={18} />
+        </button>
 
       </div>
 
-      {/* RIGHT */}
+      {/* CHART */}
 
-      <button
-        onClick={() =>
-          setYearIndex((prev) =>
-            prev < years.length - 1
-              ? prev + 1
-              : prev
-          )
-        }
-        className="
-          absolute right-0
-          w-9 h-9
-          rounded-xl
-          bg-[#1e293b]
-          hover:bg-[#334155]
-          transition-all
-          flex items-center justify-center
-          text-white
-        "
-      >
-        <ChevronRight size={18} />
-      </button>
+      <div className="flex-1 min-h-0">
+
+        <Bar
+          data={data}
+          options={options}
+        />
+
+      </div>
 
     </div>
-
-    {/* CHART */}
-
-    <div className="flex-1 min-h-0">
-
-      <Bar
-        data={data}
-        options={options}
-      />
-
-    </div>
-
-  </div>
   );
 }

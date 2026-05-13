@@ -6,6 +6,7 @@ import Role from "./Role.js";
 import Indicator from "./Indicator.js";
 import IndicatorType from "./IndicatorType.js";
 import IndicatorTrend from "./IndicatorTrend.js";
+import IndicatorData from "./IndicatorData.js";
 
 /* =========================
    RELACIONES USER / ROLE
@@ -29,6 +30,16 @@ User.hasMany(Indicator, {
 
 Indicator.belongsTo(User, {
   foreignKey: "entityId"
+});
+
+Indicator.hasMany(IndicatorData, {
+  foreignKey: 'indicatorId',
+  as: 'data',
+});
+
+IndicatorData.belongsTo(Indicator, {
+  foreignKey: 'indicatorId',
+  as: 'indicator',
 });
 
 /* =========================
@@ -64,6 +75,7 @@ export {
   User,
   Role,
   Indicator,
+  IndicatorData,
   IndicatorType,
   IndicatorTrend
 };

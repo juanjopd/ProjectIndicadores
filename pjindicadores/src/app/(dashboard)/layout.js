@@ -1,5 +1,6 @@
 import Sidebar from '../components/layout/Sidebar.jsx';
 import TopBar from '../components/layout/TopBar.jsx';
+import SessionTimeoutModal from '@/app/components/ui/SessionTimeoutModal';
 
 export default function DashboardLayout({ children }) {
   return (
@@ -12,6 +13,7 @@ export default function DashboardLayout({ children }) {
         <TopBar />
 
         <main className="flex-1 overflow-y-auto custom-scrollbar">
+          <SessionTimeoutModal />
           {children}
         </main>
       </div>
