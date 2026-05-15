@@ -19,11 +19,16 @@ import {
   Filter,
   BarChart3,
   Loader2,
+  Download,
 } from 'lucide-react';
 
 import { sileo } from 'sileo';
 
 import { getIndicators } from '@/services/indicatorServices';
+
+import {
+  downloadIndicatorReport,
+} from '@/services/reportServices';
 
 import {
   getIndicatorData,
@@ -59,7 +64,7 @@ export default function TableroOperativo() {
 
   const [user, setUser] =
     useState(null);
-
+ 
   const [indicadores, setIndicadores] =
     useState([]);
 
@@ -503,8 +508,7 @@ const selectedYear =
 
       <div class="overflow-x-auto max-h-80 custom-scrollbar">
 
-        <table class="w-full text-[10px] border-separate border-spacing-y-2">
-
+        <table class="w-full text-[10px] border-separate border-s
           <thead class="sticky top-0 bg-[#1e212b] z-10">
 
             <tr class="text-slate-500 uppercase tracking-widest font-black">
@@ -946,7 +950,7 @@ const selectedYear =
               <div className="relative z-10">
 
   <span className="text-[9px] text-blue-500 font-black uppercase tracking-[0.25em] block mb-4">
-    Desempeño anual
+    {indicador.proceso || 'Sin proceso'}
   </span>
 
   <h2
@@ -1064,6 +1068,40 @@ const selectedYear =
                   Abrir Auditoría
 
                 </button>
+
+                <br />
+                <button
+  onClick={() =>
+    downloadIndicatorReport(
+      indicador.id,
+      selectedYear
+    )
+  }
+   className="
+                    w-full
+                    h-[58px]
+                    rounded-[18px]
+                    bg-[#ED0C0C]
+                    hover:bg-[#C70A0A]
+                    transition-all
+                    text-white
+                    font-black
+                    uppercase
+                    text-[11px]
+                    tracking-wide
+                    flex
+                    items-center
+                    justify-center
+                    gap-3
+                  "
+>
+
+                <Download
+                    size={16}
+                  />
+
+  Descargar PDF
+</button>
 
               </div>
 

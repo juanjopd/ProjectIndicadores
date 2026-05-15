@@ -26,7 +26,7 @@ router.delete(
   verifyToken,
  );
 
- export default IndicatorData;
+ export default router;
 
 
 
