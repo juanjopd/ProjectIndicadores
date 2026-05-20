@@ -64,21 +64,20 @@ export default function TableroOperativo() {
 
   const [user, setUser] =
     useState(null);
- 
+
   const [indicadores, setIndicadores] =
     useState([]);
 
-  const currentYear = new Date().getFullYear();
+  const currentYear =
+    new Date().getFullYear();
 
-/*
-  SOLO años existentes
-*/
-const years = [currentYear];
+  const years = [currentYear];
 
-const [yearIndex, setYearIndex] = useState(0);
+  const [yearIndex, setYearIndex] =
+    useState(0);
 
-const selectedYear =
-  years[yearIndex] || currentYear;
+  const selectedYear =
+    years[yearIndex] || currentYear;
 
   const [entidadFilter, setEntidadFilter] =
     useState({
@@ -87,15 +86,11 @@ const selectedYear =
     });
 
   useEffect(() => {
-
     setHasMounted(true);
-
   }, []);
 
   useEffect(() => {
-
     loadData();
-
   }, []);
 
   const loadData = async () => {
@@ -112,7 +107,11 @@ const selectedYear =
       const indicators =
         await getIndicators();
 
-      setIndicadores(indicators);
+      setIndicadores(
+        Array.isArray(indicators)
+          ? indicators
+          : []
+      );
 
     } catch (error) {
 
@@ -125,7 +124,6 @@ const selectedYear =
     } finally {
 
       setLoading(false);
-
     }
   };
 
@@ -134,9 +132,9 @@ const selectedYear =
 
       const uniqueEntities = [
         ...new Set(
-          indicadores.map(
-            (i) => i.entidad
-          )
+          indicadores
+            .filter((i) => i?.entidad)
+            .map((i) => i.entidad)
         ),
       ];
 
@@ -182,7 +180,7 @@ const selectedYear =
 
       return indicadores.filter(
         (item) =>
-          item.entidad ===
+          item?.entidad ===
           entidadFilter.value
       );
 
@@ -289,9 +287,13 @@ const selectedYear =
           customClass: {
 
             popup:
-               'rounded-[40px] border border-slate-800',
-  title: '!mt-0 !pt-0 !mb-2',
-  htmlContainer: '!mt-0',
+              'rounded-[40px] border border-slate-800',
+
+            title:
+              '!mt-0 !pt-0 !mb-2',
+
+            htmlContainer:
+              '!mt-0',
           },
         });
 
@@ -376,8 +378,7 @@ const selectedYear =
             const existing =
               response.find(
                 (d) =>
-                  d.periodo ===
-                  month
+                  d.periodo === month
               );
 
             return (
@@ -399,414 +400,405 @@ const selectedYear =
           });
 
         const promedio =
-          mergedData.length > 0
-            ? (
-                mergedData.reduce(
-                  (
-                    acc,
-                    item
-                  ) =>
-                    acc +
-                    Number(
-                      item.logro ||
-                        0
-                    ),
-                  0
-                ) / 12
-              ).toFixed(1)
-            : '0.0';
+          (
+            mergedData.reduce(
+              (acc, item) =>
+                acc +
+                Number(
+                  item.logro || 0
+                ),
+              0
+            ) / 12
+          ).toFixed(1);
 
         Swal.fire({
 
-  title: `
-    <div style="
-      color:#fff;
-      font-weight:900;
-      font-size:1.2rem;
-      letter-spacing:2px;
-      text-transform:uppercase;
-      margin-top:-25px;
-      margin-bottom:10px;
-    ">
-      ${indicador.nombre}
-    </div>
-  `,
-
-  background: '#1e212b',
-
-  width: '1100px',
-
-  showCloseButton: true,
-
-  showConfirmButton: false,
-
-  customClass: {
-    popup:
-      'rounded-[40px] border border-slate-800',
-  },
-
-  html: `
-    <div class="p-4 text-left">
-
-      <div class="flex justify-between items-center mb-6">
-
-        <div class="flex gap-4">
-
-          <div class="bg-[#12141d] p-4 rounded-2xl border border-blue-500/30 text-center w-40">
-            <span class="text-[9px] text-slate-500 font-bold block mb-1 uppercase">
-              Meta
-            </span>
-
-            <div class="text-blue-400 font-black text-xl">
-              ${indicador.meta}%
+          title: `
+            <div class="text-white text-lg font-black uppercase">
+              ${indicador.nombre}
             </div>
-          </div>
+          `,
 
-          <div class="bg-[#12141d] p-4 rounded-2xl border border-green-500/30 text-center w-40">
-            <span class="text-[9px] text-slate-500 font-bold block mb-1 uppercase">
-              Satisfactorio
-            </span>
+          background: '#1e212b',
 
-            <div class="text-green-400 font-black text-xl">
-              ${indicador.satisfactorio}%
-            </div>
-          </div>
+          width: '1100px',
 
-          <div class="bg-[#12141d] p-4 rounded-2xl border border-red-500/30 text-center w-40">
-            <span class="text-[9px] text-slate-500 font-bold block mb-1 uppercase">
-              Crítico
-            </span>
+          showCloseButton: true,
 
-            <div class="text-red-500 font-black text-xl">
-              ${indicador.critico}%
-            </div>
-          </div>
+          showConfirmButton: false,
 
-        </div>
+          customClass: {
 
-        <div class="bg-[#12141d] border border-slate-700 rounded-2xl px-5 py-3">
+            popup:
+              'rounded-[40px] border border-slate-800',
+          },
 
-          <span class="text-slate-500 text-[10px] uppercase font-black">
-            Año:
-          </span>
+          html: `
+            <div class="p-4 text-left">
 
-          <span class="text-white font-black text-lg ml-2">
-            ${selectedYear}
-          </span>
+              <div class="flex justify-between items-center mb-6">
 
-        </div>
+                <div class="flex gap-4">
 
-      </div>
+                  <div class="bg-[#12141d] p-4 rounded-2xl border border-blue-500/30 text-center w-40">
 
-      <!-- GRAFICA -->
+                    <span class="text-[9px] text-slate-500 font-bold block mb-1 uppercase">
+                      Meta
+                    </span>
 
-      <div class="bg-[#12141d] p-4 rounded-[30px] border border-slate-800 mb-6 h-[350px]">
-        <canvas id="auditChart"></canvas>
-      </div>
+                    <div class="text-blue-400 font-black text-xl">
+                      ${indicador.meta}%
+                    </div>
 
-      <!-- TABLA -->
+                  </div>
 
-      <div class="overflow-x-auto max-h-80 custom-scrollbar">
+                  <div class="bg-[#12141d] p-4 rounded-2xl border border-green-500/30 text-center w-40">
 
-        <table class="w-full text-[10px] border-separate border-s
-          <thead class="sticky top-0 bg-[#1e212b] z-10">
+                    <span class="text-[9px] text-slate-500 font-bold block mb-1 uppercase">
+                      Satisfactorio
+                    </span>
 
-            <tr class="text-slate-500 uppercase tracking-widest font-black">
+                    <div class="text-green-400 font-black text-xl">
+                      ${indicador.satisfactorio}%
+                    </div>
 
-              <th class="px-2 pb-2 text-left">
-                Mes
-              </th>
+                  </div>
 
-              <th class="px-2 pb-2 text-center">
-                Num.
-              </th>
+                  <div class="bg-[#12141d] p-4 rounded-2xl border border-red-500/30 text-center w-40">
 
-              <th class="px-2 pb-2 text-center">
-                Den.
-              </th>
+                    <span class="text-[9px] text-slate-500 font-bold block mb-1 uppercase">
+                      Crítico
+                    </span>
 
-              <th class="px-2 pb-2 text-center">
-                Logro
-              </th>
+                    <div class="text-red-500 font-black text-xl">
+                      ${indicador.critico}%
+                    </div>
 
-              <th class="px-2 pb-2 text-left">
-                Análisis
-              </th>
+                  </div>
 
-              <th class="px-2 pb-2 text-left">
-                Acciones
-              </th>
+                </div>
 
-              <th class="px-2 pb-2 text-center">
-                Gestión
-              </th>
+                <div class="bg-[#12141d] border border-slate-700 rounded-2xl px-5 py-3">
 
-            </tr>
+                  <span class="text-slate-500 text-[10px] uppercase font-black">
+                    Año:
+                  </span>
 
-          </thead>
+                  <span class="text-white font-black text-lg ml-2">
+                    ${selectedYear}
+                  </span>
 
-          <tbody>
+                </div>
 
-            ${mergedData
-              .map((d, i) => {
+              </div>
 
-                return `
-                  <tr class="bg-[#12141d]/50 hover:bg-[#12141d] transition-all">
+              <div class="bg-[#12141d] p-4 rounded-[30px] border border-slate-800 mb-6 h-[350px]">
+                <canvas id="auditChart"></canvas>
+              </div>
 
-                    <td class="px-4 py-3 rounded-l-xl font-bold text-slate-400">
-                      ${d.periodo}
-                    </td>
+              <div class="overflow-x-auto max-h-80">
 
-                    <td class="px-2 py-3 text-center text-white">
-                      ${d.numerador}
-                    </td>
+                <table class="w-full text-[10px]">
 
-                    <td class="px-2 py-3 text-center text-white">
-                      ${d.denominador}
-                    </td>
+                  <thead>
 
-                    <td class="px-2 py-3 text-center font-black text-blue-400">
-                      ${d.logro}%
-                    </td>
+                    <tr class="text-slate-500 uppercase tracking-widest font-black">
 
-                    <td class="px-4 py-3 italic text-slate-500 text-[9px]">
-                      ${d.analisis || '---'}
-                    </td>
+                      <th class="px-2 pb-2 text-left">
+                        Mes
+                      </th>
 
-                    <td class="px-4 py-3 italic text-blue-400 text-[9px]">
-                      ${d.acciones || '---'}
-                    </td>
+                      <th class="px-2 pb-2 text-center">
+                        Num.
+                      </th>
 
-                    <td class="px-4 py-3 rounded-r-xl text-center">
+                      <th class="px-2 pb-2 text-center">
+                        Den.
+                      </th>
 
-                      <button
-                        onclick="window.dispatchCarga(${i})"
-                        class="px-4 py-2 bg-blue-600/20 text-blue-400 rounded-xl hover:bg-blue-600 hover:text-white transition-all font-black"
+                      <th class="px-2 pb-2 text-center">
+                        Logro
+                      </th>
+
+                      <th class="px-2 pb-2 text-left">
+                        Análisis
+                      </th>
+
+                      <th class="px-2 pb-2 text-left">
+                        Acciones
+                      </th>
+
+                      <th class="px-2 pb-2 text-center">
+                        Gestión
+                      </th>
+
+                    </tr>
+
+                  </thead>
+
+                  <tbody>
+
+                    ${mergedData
+                      .map((d, i) => {
+
+                        return `
+
+                          <tr class="bg-[#12141d]/50">
+
+                            <td class="px-4 py-3 rounded-l-xl font-bold text-slate-400">
+                              ${d.periodo}
+                            </td>
+
+                            <td class="px-2 py-3 text-center text-white">
+                              ${d.numerador}
+                            </td>
+
+                            <td class="px-2 py-3 text-center text-white">
+                              ${d.denominador}
+                            </td>
+
+                            <td class="px-2 py-3 text-center font-black text-blue-400">
+                              ${d.logro}%
+                            </td>
+
+                            <td class="px-4 py-3 italic text-slate-500 text-[9px]">
+                              ${d.analisis || '---'}
+                            </td>
+
+                            <td class="px-4 py-3 italic text-blue-400 text-[9px]">
+                              ${d.acciones || '---'}
+                            </td>
+
+                            <td class="px-4 py-3 rounded-r-xl text-center">
+
+                              <button
+                                onclick="window.dispatchCarga(${i})"
+                                class="px-4 py-2 bg-blue-600/20 text-blue-400 rounded-xl hover:bg-blue-600 hover:text-white transition-all font-black"
+                              >
+                                EDITAR
+                              </button>
+
+                            </td>
+
+                          </tr>
+                        `;
+                      })
+                      .join('')}
+
+                    <tr class="bg-blue-600/10">
+
+                      <td
+                        class="px-4 py-4 rounded-l-xl font-black text-white uppercase text-right"
+                        colspan="3"
                       >
-                        EDITAR
-                      </button>
+                        Promedio:
+                      </td>
 
-                    </td>
+                      <td class="px-4 py-4 text-center font-black text-blue-400 text-lg">
+                        ${promedio}%
+                      </td>
 
-                  </tr>
-                `;
-              })
-              .join('')}
+                      <td colspan="3" class="rounded-r-xl"></td>
 
-            <tr class="bg-blue-600/10">
+                    </tr>
 
-              <td
-                class="px-4 py-4 rounded-l-xl font-black text-white uppercase text-right"
-                colspan="3"
-              >
-                Promedio Anual:
-              </td>
+                  </tbody>
 
-              <td class="px-4 py-4 text-center font-black text-blue-400 text-lg">
-                ${promedio}%
-              </td>
+                </table>
 
-              <td colspan="3" class="rounded-r-xl"></td>
+              </div>
 
-            </tr>
+            </div>
+          `,
 
-          </tbody>
+          didOpen: () => {
 
-        </table>
+            window.dispatchCarga =
+              async (index) => {
 
-      </div>
+                await modalCargaMensual(
+                  indicador,
+                  mergedData[index],
+                  () =>
+                    abrirAuditoria(
+                      indicador
+                    )
+                );
+              };
 
-    </div>
-  `,
+            const ctx =
+              document
+                .getElementById(
+                  'auditChart'
+                )
+                .getContext('2d');
 
-  didOpen: () => {
+            new Chart(ctx, {
 
-    const title =
-    document.querySelector('.swal2-title');
+              data: {
 
-  if (title) {
+                labels:
+                  mergedData.map(
+                    (d) => d.periodo
+                  ),
 
-      title.style.margin = '0';
-      title.style.padding = '0';
-      title.style.marginTop = '-25px';
-      title.style.marginBottom = '10px';
+               datasets: [
 
-      title.style.color = '#fff';
-      title.style.fontWeight = '900';
-      title.style.fontSize = '1.2rem';
-      title.style.letterSpacing = '2px';
-  }
+  {
+    type: 'bar',
 
-    window.dispatchCarga =
-      async (index) => {
+    label: 'Logro',
 
-        await modalCargaMensual(
-          indicador,
-          mergedData[index],
-          () =>
-            abrirAuditoria(
-              indicador
-            )
-        );
-      };
-
-    const ctx =
-      document
-        .getElementById(
-          'auditChart'
+    data: mergedData.map(
+      (d) =>
+        Number(
+          d.logro || 0
         )
-        .getContext('2d');
+    ),
 
-    new Chart(ctx, {
+    backgroundColor:
+      'rgba(59,130,246,0.75)',
 
-      data: {
+    borderRadius: 10,
 
-        labels: mergedData.map(
-          (d) => d.periodo
-        ),
-
-        datasets: [
-
-          {
-            type: 'bar',
-
-            label: 'Logro',
-
-            data: mergedData.map(
-              (d) =>
-                Number(
-                  d.logro || 0
-                )
-            ),
-
-            backgroundColor:
-              'rgba(59,130,246,0.75)',
-
-            borderRadius: 10,
-
-            barThickness: 22,
-          },
-
-          {
-            type: 'line',
-
-            label: 'Meta',
-
-            data:
-              new Array(12).fill(
-                Number(
-                  indicador.meta || 0
-                )
-              ),
-
-            borderColor:
-              '#60a5fa',
-
-            borderDash: [6, 6],
-
-            borderWidth: 2,
-
-            pointRadius: 0,
-
-            tension: 0.4,
-          },
-
-          {
-            type: 'line',
-
-            label: 'Satisfactorio',
-
-            data:
-              new Array(12).fill(
-                Number(
-                  indicador.satisfactorio || 0
-                )
-              ),
-
-            borderColor:
-              '#10b981',
-
-            borderDash: [6, 6],
-
-            borderWidth: 2,
-
-            pointRadius: 0,
-
-            tension: 0.4,
-          },
-
-          {
-            type: 'line',
-
-            label: 'Crítico',
-
-            data:
-              new Array(12).fill(
-                Number(
-                  indicador.critico || 0
-                )
-              ),
-
-            borderColor:
-              '#ef4444',
-
-            borderDash: [6, 6],
-
-            borderWidth: 2,
-
-            pointRadius: 0,
-
-            tension: 0.4,
-          },
-        ],
-      },
-
-      options: {
-
-        responsive: true,
-
-        maintainAspectRatio: false,
-
-        plugins: {
-
-          legend: {
-            display: false,
-          },
-        },
-
-        scales: {
-
-          x: {
-
-            ticks: {
-              color: '#64748b',
-            },
-
-            grid: {
-              display: false,
-            },
-          },
-
-          y: {
-
-            min: 0,
-
-            max: 100,
-
-            ticks: {
-              color: '#64748b',
-            },
-
-            grid: {
-              color:
-                'rgba(255,255,255,0.05)',
-            },
-          },
-        },
-      },
-    });
+    barThickness: 22,
   },
-});
+
+  // META (AZUL)
+
+  {
+    type: 'line',
+
+    label: 'Meta',
+
+    data:
+      new Array(12).fill(
+        Number(
+          indicador.meta || 0
+        )
+      ),
+
+    borderColor:
+      '#3b82f6',
+
+    backgroundColor:
+      '#3b82f6',
+
+    borderWidth: 3,
+
+    borderDash: [6, 6],
+
+    pointRadius: 0,
+
+    tension: 0.4,
+  },
+
+  // SATISFACTORIO (VERDE)
+
+  {
+    type: 'line',
+
+    label: 'Satisfactorio',
+
+    data:
+      new Array(12).fill(
+        Number(
+          indicador.satisfactorio || 0
+        )
+      ),
+
+    borderColor:
+      '#22c55e',
+
+    backgroundColor:
+      '#22c55e',
+
+    borderWidth: 3,
+
+    borderDash: [6, 6],
+
+    pointRadius: 0,
+
+    tension: 0.4,
+  },
+
+  // CRÍTICO (ROJO)
+
+  {
+    type: 'line',
+
+    label: 'Crítico',
+
+    data:
+      new Array(12).fill(
+        Number(
+          indicador.critico || 0
+        )
+      ),
+
+    borderColor:
+      '#ef4444',
+
+    backgroundColor:
+      '#ef4444',
+
+    borderWidth: 3,
+
+    borderDash: [6, 6],
+
+    pointRadius: 0,
+
+    tension: 0.4,
+  },
+],
+              },
+
+              options: {
+
+                responsive: true,
+
+                maintainAspectRatio: false,
+
+                plugins: {
+
+                  legend: {
+                    display: false,
+                  },
+                },
+
+                scales: {
+
+                  x: {
+
+                    ticks: {
+                      color: '#64748b',
+                    },
+
+                    grid: {
+                      display: false,
+                    },
+                  },
+
+                  y: {
+
+                    min: 0,
+
+                    max: 100,
+
+                    ticks: {
+                      color: '#64748b',
+                    },
+
+                    grid: {
+                      color:
+                        'rgba(255,255,255,0.05)',
+                    },
+                  },
+                },
+              },
+            });
+          },
+        });
 
       } catch (error) {
 
@@ -879,7 +871,7 @@ const selectedYear =
               options={
                 entidadOptions
               }
-              styles={{
+               styles={{
                 control: (base) => ({
                   ...base,
                   backgroundColor: 'transparent',
@@ -923,190 +915,198 @@ const selectedYear =
 
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
 
         {filteredData.map(
-          (indicador) => (
+          (indicador, index) => {
 
-            <div
-              key={
-                indicador.id
-              }
-              className="
-                relative
-                overflow-hidden
-                bg-gradient-to-b
-                from-[#050816]
-                to-[#090f1f]
-                rounded-[35px]
-                border
-                border-[#1d2740]
-                p-7
-              "
-            >
+            const colors = [
 
-              <div className="absolute -top-24 right-[-50px] w-52 h-52 bg-blue-600/10 blur-3xl rounded-full" />
+              'from-[#0f172a] to-[#1e293b]',
+              'from-[#111827] to-[#1e1b4b]',
+              'from-[#0f172a] to-[#022c22]',
+              'from-[#1f2937] to-[#3f1d2e]',
+            ];
 
-              <div className="relative z-10">
+            return (
 
-  <span className="text-[9px] text-blue-500 font-black uppercase tracking-[0.25em] block mb-4">
-    {indicador.proceso || 'Sin proceso'}
-  </span>
+              <div
+                key={indicador.id}
+                className={`
+                  relative
+                  overflow-hidden
+                  bg-gradient-to-b
+                  ${colors[index % colors.length]}
+                  rounded-[32px]
+                  border
+                  border-slate-800
+                  p-6
+                `}
+              >
 
-  <h2
-    className="
-      text-white
-      font-black
-      text-xl
-      uppercase
-      leading-tight
-      mb-6
-    "
-  >
-    {indicador.nombre}
-  </h2>
-                <div className="mb-6">
+                <div className="relative z-10">
 
-                  <div className="flex justify-between items-center mb-2">
+                  <span className="text-[9px] text-blue-400 font-black uppercase tracking-[0.25em] block mb-4">
+                    {indicador.proceso || 'Sin proceso'}
+                  </span>
 
-                    <span className="text-[9px] text-slate-500 uppercase font-black tracking-widest">
-                      Promedio acumulado
-                    </span>
+                  <h2
+                    className="
+                      text-white
+                      font-black
+                      text-lg
+                      uppercase
+                      leading-tight
+                      mb-5
+                    "
+                  >
+                    {indicador.nombre}
+                  </h2>
 
-                    <span className="text-white font-black text-3xl italic">
-                      {indicador.meta}%
-                    </span>
+                  <div className="mb-5">
 
-                  </div>
+                    <div className="flex justify-between items-center mb-2">
 
-                  <div className="w-full h-[8px] bg-[#18233b] rounded-full overflow-hidden">
+                      <span className="text-[9px] text-slate-500 uppercase font-black tracking-widest">
+                        Cumplimiento
+                      </span>
 
-                    <div
-                      className="h-full bg-[#00e061] rounded-full"
-                      style={{
-                        width: `${indicador.meta}%`,
-                      }}
-                    />
-
-                  </div>
-
-                </div>
-
-                <div className="border-t border-slate-800 pt-5 mb-7">
-
-                  <div className="grid grid-cols-3 gap-3">
-
-                    <div className="text-center">
-
-                      <p className="text-[8px] uppercase text-slate-600 font-black mb-1">
-                        Meta
-                      </p>
-
-                      <span className="text-blue-500 font-black text-sm">
+                      <span className="text-white font-black text-2xl italic">
                         {indicador.meta}%
                       </span>
 
                     </div>
 
-                    <div className="text-center">
+                    <div className="w-full h-[8px] bg-[#18233b] rounded-full overflow-hidden">
 
-                      <p className="text-[8px] uppercase text-slate-600 font-black mb-1">
-                        Satis.
-                      </p>
-
-                      <span className="text-[#00e061] font-black text-sm">
-                        {indicador.satisfactorio}%
-                      </span>
-
-                    </div>
-
-                    <div className="text-center">
-
-                      <p className="text-[8px] uppercase text-slate-600 font-black mb-1">
-                        Crit.
-                      </p>
-
-                      <span className="text-red-500 font-black text-sm">
-                        {indicador.critico}%
-                      </span>
+                      <div
+                        className="h-full bg-[#2563eb] rounded-full"
+                        style={{
+                          width: `${indicador.meta}%`,
+                        }}
+                      />
 
                     </div>
 
                   </div>
 
+                  <div className="border-t border-slate-800 pt-4 mb-5">
+
+                    <div className="grid grid-cols-3 gap-3">
+
+                      <div className="text-center">
+
+                        <p className="text-[8px] uppercase text-slate-600 font-black mb-1">
+                          Meta
+                        </p>
+
+                        <span className="text-blue-400 font-black text-sm">
+                          {indicador.meta}%
+                        </span>
+
+                      </div>
+
+                      <div className="text-center">
+
+                        <p className="text-[8px] uppercase text-slate-600 font-black mb-1">
+                          Satis.
+                        </p>
+
+                        <span className="text-green-400 font-black text-sm">
+                          {indicador.satisfactorio}%
+                        </span>
+
+                      </div>
+
+                      <div className="text-center">
+
+                        <p className="text-[8px] uppercase text-slate-600 font-black mb-1">
+                          Crit.
+                        </p>
+
+                        <span className="text-red-500 font-black text-sm">
+                          {indicador.critico}%
+                        </span>
+
+                      </div>
+
+                    </div>
+
+                  </div>
+
+                  <button
+                    onClick={() =>
+                      abrirAuditoria(
+                        indicador
+                      )
+                    }
+                    className="
+                      w-full
+                      h-[52px]
+                      rounded-[18px]
+                      bg-[#2563eb]
+                      hover:bg-[#1d4ed8]
+                      transition-all
+                      text-white
+                      font-black
+                      uppercase
+                      text-[11px]
+                      tracking-wide
+                      flex
+                      items-center
+                      justify-center
+                      gap-3
+                    "
+                  >
+
+                    <BarChart3
+                      size={16}
+                    />
+
+                    Abrir Auditoría
+
+                  </button>
+
+                  <button
+                    onClick={() =>
+                      downloadIndicatorReport(
+                        indicador.id,
+                        selectedYear
+                      )
+                    }
+                    className="
+                      mt-3
+                      w-full
+                      h-[52px]
+                      rounded-[18px]
+                      bg-[#dc2626]
+                      hover:bg-[#b91c1c]
+                      transition-all
+                      text-white
+                      font-black
+                      uppercase
+                      text-[11px]
+                      tracking-wide
+                      flex
+                      items-center
+                      justify-center
+                      gap-3
+                    "
+                  >
+
+                    <Download
+                      size={16}
+                    />
+
+                    Descargar PDF
+
+                  </button>
+
                 </div>
 
-                <button
-                  onClick={() =>
-                    abrirAuditoria(
-                      indicador
-                    )
-                  }
-                  className="
-                    w-full
-                    h-[58px]
-                    rounded-[18px]
-                    bg-[#2563eb]
-                    hover:bg-[#1d4ed8]
-                    transition-all
-                    text-white
-                    font-black
-                    uppercase
-                    text-[11px]
-                    tracking-wide
-                    flex
-                    items-center
-                    justify-center
-                    gap-3
-                  "
-                >
-
-                  <BarChart3
-                    size={16}
-                  />
-
-                  Abrir Auditoría
-
-                </button>
-
-                <br />
-                <button
-  onClick={() =>
-    downloadIndicatorReport(
-      indicador.id,
-      selectedYear
-    )
-  }
-   className="
-                    w-full
-                    h-[58px]
-                    rounded-[18px]
-                    bg-[#ED0C0C]
-                    hover:bg-[#C70A0A]
-                    transition-all
-                    text-white
-                    font-black
-                    uppercase
-                    text-[11px]
-                    tracking-wide
-                    flex
-                    items-center
-                    justify-center
-                    gap-3
-                  "
->
-
-                <Download
-                    size={16}
-                  />
-
-  Descargar PDF
-</button>
-
               </div>
-
-            </div>
-          )
+            );
+          }
         )}
 
       </div>

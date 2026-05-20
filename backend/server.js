@@ -24,7 +24,7 @@ async function startServer() {
 			console.log(`Servidor corriendo en puerto ${PORT}`);
 		});
 	} catch (error) {
-		console.log("Error al contenar la base de datos", error);
+		console.error("Error al contenar la base de datos", error);
 	}
 }
 

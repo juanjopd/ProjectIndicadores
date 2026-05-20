@@ -10,6 +10,11 @@ export const getIndicators = async () => {
   return res.data;
 };
 
+export const getIndicatorById = async (id) => {
+  const res = await api.get(`/indicator/${id}`);
+  return res.data;
+};
+
 export const deleteIndicator = async (id) => {
   const res = await api.delete(`/indicator/${id}`);
   return res.data;

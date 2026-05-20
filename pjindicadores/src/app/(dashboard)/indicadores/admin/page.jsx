@@ -21,9 +21,11 @@ import { getIndicators } from '@/services/indicatorServices';
 import { getMe } from '@/services/authService';
 import IndicatorChart from '@/app/components/ui/IndicatorChart'; 
 import { createRoot } from 'react-dom/client'
+import { useRouter } from 'next/navigation';
 
 export default function AdminIndicadores() {
 
+  const router = useRouter();  
   const [hasMounted, setHasMounted] = useState(false);
 
   const [loading, setLoading] = useState(true);
@@ -628,7 +630,11 @@ export default function AdminIndicadores() {
 
             <button
               type="button"
-              onClick={() => sileo.info('Modo edición')}
+              onClick={() =>
+    router.push(
+      `/indicadores/editar/${indicador.id}`
+    )
+  }
               className="text-slate-500 hover:text-blue-400 transition-all duration-200 hover:scale-125 active:scale-95"
             >
               <Edit size={20} />

@@ -281,6 +281,124 @@ export const deleteIndicator = async (req, res) => {
 
 };
 
+
+export const getIndicatorById = async (
+  req,
+  res
+) => {
+
+  try {
+
+    const { id } = req.params;
+
+    const indicator =
+      await Indicator.findByPk(id, {
+
+        include: [
+
+          {
+            model: User,
+            attributes: ['id', 'name']
+          },
+
+          {
+            model: IndicatorType,
+            attributes: ['id', 'name']
+          },
+
+          {
+            model: IndicatorTrend,
+            attributes: ['id', 'name']
+          }
+
+        ]
+
+      });
+
+    if (!indicator) {
+
+      return res.status(404).json({
+        message:
+          'Indicador no encontrado'
+      });
+
+    }
+
+    // SI ES ENTIDAD
+    // SOLO PUEDE VER LOS SUYOS
+
+    if (
+      req.user.role !==
+        'superadmin' &&
+      indicator.entityId !==
+        req.user.id
+    ) {
+
+      return res.status(403).json({
+        message: 'No autorizado'
+      });
+
+    }
+
+    return res.json({
+
+      id: indicator.id,
+
+      nombre: indicator.nombre,
+
+      entidad:
+        indicator.User?.name,
+
+      responsable:
+        indicator.responsable,
+
+      proceso:
+        indicator.proceso,
+
+      tipo:
+        indicator.IndicatorType,
+
+      tendencia:
+        indicator.IndicatorTrend,
+
+      frecuencia:
+        indicator.frecuencia,
+
+      utilidad:
+        indicator.utilidad,
+
+      meta: indicator.meta,
+
+      satisfactorio:
+        indicator.satisfactorio,
+
+      critico:
+        indicator.critico,
+
+      entityId:
+        indicator.entityId,
+
+      tipoId:
+        indicator.tipoId,
+
+      tendenciaId:
+        indicator.tendenciaId
+
+    });
+
+  } catch (error) {
+
+    console.log(error);
+
+    res.status(500).json({
+      message:
+        'Error obteniendo indicador'
+    });
+
+  }
+
+};
+
 export const getTypes = async (req, res) => {
 
   try {
