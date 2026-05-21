@@ -399,17 +399,22 @@ export default function TableroOperativo() {
             );
           });
 
-        const promedio =
-          (
-            mergedData.reduce(
-              (acc, item) =>
-                acc +
-                Number(
-                  item.logro || 0
-                ),
-              0
-            ) / 12
-          ).toFixed(1);
+        const registrosConDatos = mergedData.filter(
+  (item) =>
+    Number(item.denominador) > 0
+);
+
+const promedio =
+  registrosConDatos.length > 0
+    ? (
+        registrosConDatos.reduce(
+          (acc, item) =>
+            acc +
+            Number(item.logro || 0),
+          0
+        ) / registrosConDatos.length
+      ).toFixed(1)
+    : 0;
 
         Swal.fire({
 
@@ -972,7 +977,7 @@ export default function TableroOperativo() {
                       </span>
 
                       <span className="text-white font-black text-2xl italic">
-                        {indicador.meta}%
+                         {indicador.promedio || 0}%
                       </span>
 
                     </div>
@@ -982,7 +987,7 @@ export default function TableroOperativo() {
                       <div
                         className="h-full bg-[#2563eb] rounded-full"
                         style={{
-                          width: `${indicador.meta}%`,
+                         width: `${indicador.promedio || 0}%`,
                         }}
                       />
 

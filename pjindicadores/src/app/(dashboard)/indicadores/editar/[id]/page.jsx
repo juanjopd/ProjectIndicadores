@@ -113,17 +113,17 @@ export default function EditIndicatorPage() {
 
     {
       value: 1,
-      label: 'Estratégico',
+      label: 'Eficacia',
     },
 
     {
       value: 2,
-      label: 'Operativo',
+      label: 'Eficiencia',
     },
 
     {
       value: 3,
-      label: 'Calidad',
+      label: 'Efectividad',
     },
   ];
 
@@ -131,18 +131,14 @@ export default function EditIndicatorPage() {
 
     {
       value: 1,
-      label: 'Ascendente',
+      label: 'Aumentar',
     },
 
     {
       value: 2,
-      label: 'Descendente',
+      label: 'Disminuir',
     },
 
-    {
-      value: 3,
-      label: 'Estable',
-    },
   ];
 
   // =====================================================
