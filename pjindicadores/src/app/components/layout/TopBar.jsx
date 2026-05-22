@@ -1,6 +1,12 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
+import {
+  useEffect,
+  useState,
+} from 'react';
+
+import { useRouter }
+from 'next/navigation';
 
 import {
   Search,
@@ -10,13 +16,56 @@ import {
 import NotificationBell
 from './NotificationBell';
 
+import { getMe }
+from '@/services/authService';
+
 const TopBar = () => {
 
-  const router = useRouter();
+  const router =
+    useRouter();
+
+  const [user, setUser] =
+    useState(null);
+
+  // ======================================
+  // CARGAR USUARIO
+  // ======================================
+
+  useEffect(() => {
+
+    loadUser();
+
+  }, []);
+
+  const loadUser =
+    async () => {
+
+      try {
+
+        const data =
+          await getMe();
+
+        setUser(data.user);
+
+      } catch (error) {
+
+        console.error(error);
+
+      }
+    };
 
   return (
 
-    <header className="h-16 flex items-center justify-between px-2 relative">
+    <header
+      className="
+        h-16
+        flex
+        items-center
+        justify-between
+        px-2
+        relative
+      "
+    >
 
       {/* =====================================================
           BUSCADOR
@@ -24,15 +73,27 @@ const TopBar = () => {
 
       <div className="relative w-80">
 
-        <span className="absolute inset-y-0 left-4 flex items-center text-slate-50">
+        <span
+          className="
+            absolute
+            inset-y-0
+            left-4
+            flex
+            items-center
+            text-slate-50
+          "
+        >
 
           <Search size={18} />
 
         </span>
 
         <input
+
           type="text"
+
           placeholder="Buscar indicadores..."
+
           className="
             w-full
             bg-[#1e212b]
@@ -56,13 +117,27 @@ const TopBar = () => {
           ACCIONES
       ===================================================== */}
 
-      <div className="flex items-center gap-6">
+      <div
+        className="
+          flex
+          items-center
+          gap-6
+        "
+      >
 
-        <div className="flex items-center gap-5 text-slate-400">
+        <div
+          className="
+            flex
+            items-center
+            gap-5
+            text-slate-400
+          "
+        >
 
           {/* PLUS */}
 
           <button
+
             className="
               hover:text-white
               transition-colors
@@ -71,6 +146,7 @@ const TopBar = () => {
               rounded-full
               p-1
             "
+
             onClick={() =>
               router.push(
                 '/indicadores/crear'
@@ -82,7 +158,7 @@ const TopBar = () => {
 
           </button>
 
-          {/* 🔔 NUEVO SISTEMA */}
+          {/* 🔔 NOTIFICACIONES */}
 
           <NotificationBell />
 
@@ -101,12 +177,22 @@ const TopBar = () => {
             border-2
             border-slate-700
             cursor-pointer
+            bg-[#1e212b]
           "
         >
 
           <img
-            src="https://avatar.iran.liara.run/public/30"
+
+            src={
+              user?.logo
+
+                ? `http://localhost:4000${user.logo}`
+
+                : 'https://avatar.iran.liara.run/public/30'
+            }
+
             alt="User profile"
+
             className="
               w-full
               h-full

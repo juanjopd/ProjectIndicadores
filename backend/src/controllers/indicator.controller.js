@@ -1,9 +1,10 @@
 import Indicator from "../models/Indicator.js";
+import IndicatorData from "../models/IndicatorData.js";
 import {
   IndicatorType,
   IndicatorTrend
 } from "../models/index.js";
-
+import { createNotification } from '../services/notification.service.js';
 import User from "../models/User.js";
 
 export const createIndicator = async (req, res) => {
@@ -54,6 +55,21 @@ export const createIndicator = async (req, res) => {
 
     });
 
+    // 🔥 NOTIFICACIÓN
+
+await createNotification({
+
+  action: 'CREATE_INDICATOR',
+
+  message:
+    `${req.user.name} creó el indicador "${nombre}"`,
+
+  userName: req.user.name,
+
+  indicatorName: nombre,
+
+});
+
     return res.status(201).json({
 
       message: "Indicador creado",
@@ -81,97 +97,121 @@ export const getIndicators = async (req, res) => {
 
     let indicators;
 
+    const includeConfig = [
+
+      {
+        model: User,
+        attributes: ['id', 'name']
+      },
+
+      {
+        model: IndicatorType,
+        attributes: ['id', 'name']
+      },
+
+      {
+        model: IndicatorTrend,
+        attributes: ['id', 'name']
+      },
+
+      {
+        model: IndicatorData,
+        as: 'data', // 🔥 IMPORTANTE
+        required: false,
+        attributes: [
+          'id',
+          'logro',
+          'periodo',
+          'year'
+        ]
+      }
+
+    ];
+
     // SUPERADMIN VE TODOS
-    if (req.user.role === "superadmin") {
+
+    if (req.user.role === 'superadmin') {
 
       indicators = await Indicator.findAll({
 
-        include: [
+        include: includeConfig,
 
-          {
-            model: User,
-            attributes: ["id", "name"]
-          },
-
-          {
-            model: IndicatorType,
-            attributes: ["id", "name"]
-          },
-
-          {
-            model: IndicatorTrend,
-            attributes: ["id", "name"]
-          }
-
-        ],
-
-        order: [["id", "DESC"]]
+        order: [['id', 'DESC']]
 
       });
 
     } else {
 
-      // ENTIDAD SOLO VE SUS INDICADORES
+      // ENTIDAD SOLO VE LOS SUYOS
+
       indicators = await Indicator.findAll({
 
         where: {
           entityId: req.user.id
         },
 
-        include: [
+        include: includeConfig,
 
-          {
-            model: User,
-            attributes: ["id", "name"]
-          },
-
-          {
-            model: IndicatorType,
-            attributes: ["id", "name"]
-          },
-
-          {
-            model: IndicatorTrend,
-            attributes: ["id", "name"]
-          }
-
-        ],
-
-        order: [["id", "DESC"]]
+        order: [['id', 'DESC']]
 
       });
 
     }
 
-    const formatted = indicators.map((i) => ({
+    const formatted = indicators.map((i) => {
 
-      id: i.id,
+      // ============================
+      // CALCULAR PROMEDIO
+      // ============================
 
-      nombre: i.nombre,
+      const promedio =
+  i.data && i.data.length > 0
+    ? Number(
+        (
+          i.data.reduce(
+            (acc, item) =>
+              acc + Number(item.logro || 0),
+            0
+          ) / i.data.length
+        ).toFixed(1)
+      )
+    : 0;
 
-      entidad: i.User?.name,
+      return {
 
-      responsable: i.responsable,
+        id: i.id,
 
-      proceso: i.proceso,
+        nombre: i.nombre,
 
-      tipo: i.IndicatorType,
+        entidad: i.User?.name,
 
-      tendencia: i.IndicatorTrend,
+        responsable: i.responsable,
 
-      frecuencia: i.frecuencia,
+        proceso: i.proceso,
 
-      utilidad: i.utilidad,
+        tipo: i.IndicatorType,
 
-      meta: i.meta,
+        tendencia: i.IndicatorTrend,
 
-      satisfactorio: i.satisfactorio,
+        frecuencia: i.frecuencia,
 
-      critico: i.critico,
+        utilidad: i.utilidad,
 
-      entityId: i.entityId
+        meta: i.meta,
 
-    }));
+        satisfactorio: i.satisfactorio,
+
+        critico: i.critico,
+
+        entityId: i.entityId,
+
+        promedio, 
+
+        data: i.data || []
+
+      };
+
+    });
 
     return res.json(formatted);
 
@@ -180,7 +220,7 @@ export const getIndicators = async (req, res) => {
     console.log(error);
 
     res.status(500).json({
-      message: "Error obteniendo indicadores"
+      message: 'Error obteniendo indicadores'
     });
 
   }
@@ -217,6 +257,19 @@ export const updateIndicator = async (req, res) => {
     }
 
     await indicator.update(req.body);
+
+    await createNotification({
+
+  action: 'UPDATE_INDICATOR',
+
+  message:
+    `${req.user.name} actualizó el indicador "${indicator.nombre}"`,
+
+  userName: req.user.name,
+
+  indicatorName: indicator.nombre,
+
+});
 
     res.json({
       message: "Indicador actualizado"
@@ -264,6 +317,19 @@ export const deleteIndicator = async (req, res) => {
     }
 
     await indicator.destroy();
+
+    await createNotification({
+
+  action: 'DELETE_INDICATOR',
+
+  message:
+    `${req.user.name} eliminó el indicador "${indicator.nombre}"`,
+
+  userName: req.user.name,
+
+  indicatorName: indicator.nombre,
+
+});
 
     res.json({
       message: "Indicador eliminado"

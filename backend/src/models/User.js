@@ -23,7 +23,11 @@ const User = sequelize.define("User", {
 	estado: {
 		type: DataTypes.BOOLEAN,
 		defaultValue: true
-	}
+	},
+	logo: {
+		type: DataTypes.STRING,
+  		allowNull: true,
+	},
 }, {
 	tableName: "users",
 	timestamps: true

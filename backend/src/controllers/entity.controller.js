@@ -3,47 +3,104 @@ import User from "../models/User.js";
 import Role from "../models/Role.js";
 
 export const registerEntity = async (req, res) => {
+
   try {
-    const { name, email, pass } = req.body;
 
-    const role = await Role.findOne({
-      where: { name: "entity" }
-    });
-
-    if (!role) {
-      return res.status(400).json({
-        message: "Rol entidad no existe"
-      });
-    }
-
-    const existUser = await User.findOne({
-      where: { email }
-    });
-
-    if (existUser) {
-      return res.status(400).json({
-        message: "El correo ya está registrado"
-      });
-    }
-
-    const hashedPassword = await bcrypt.hash(pass, 10);
-
-    const entity = await User.create({
+    const {
       name,
       email,
-      password: hashedPassword,
-      roleId: role.id,
-      estado: true
-    });
+      pass
+    } = req.body;
+
+    const role =
+      await Role.findOne({
+
+        where: {
+          name: "entity"
+        }
+
+      });
+
+    if (!role) {
+
+      return res.status(400).json({
+
+        message:
+          "Rol entidad no existe"
+
+      });
+
+    }
+
+    const existUser =
+      await User.findOne({
+
+        where: { email }
+
+      });
+
+    if (existUser) {
+
+      return res.status(400).json({
+
+        message:
+          "El correo ya está registrado"
+
+      });
+
+    }
+
+    const hashedPassword =
+      await bcrypt.hash(pass, 10);
+
+    // ======================================
+    // LOGO
+    // ======================================
+
+    const logo = req.file
+      ? `/uploads/${req.file.filename}`
+      : null;
+
+    // ======================================
+    // CREAR ENTIDAD
+    // ======================================
+
+    const entity =
+      await User.create({
+
+        name,
+
+        email,
+
+        password:
+          hashedPassword,
+
+        roleId: role.id,
+
+        estado: true,
+
+        logo
+
+      });
 
     res.status(201).json(entity);
 
   } catch (error) {
-    console.error("ERROR CREATE ENTITY:", error);
+
+    console.error(
+      "ERROR CREATE ENTITY:",
+      error
+    );
+
     res.status(500).json({
-      message: "Error al crear entidad"
+
+      message:
+        "Error al crear entidad"
+
     });
+
   }
+
 };
 
 export const getEntities = async (req, res) => {

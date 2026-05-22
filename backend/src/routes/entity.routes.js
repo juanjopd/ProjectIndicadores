@@ -5,14 +5,14 @@ import {
   updateEntity,
   toggleEntity
 } from "../controllers/entity.controller.js";
-
+import upload from '../middlewares/upload.middleware.js';
 import { verifyToken } from "../middlewares/auth.middleware.js";
 import { authorize } from "../middlewares/role.middleware.js";
 
 const router = Router();
 
 // solo superadmin puede registrar entidad
-router.post("/", verifyToken, authorize(["superadmin"]), registerEntity);
+router.post("/", verifyToken, authorize(["superadmin"]), upload.single("logo"), registerEntity);
 
 // solo superadmin puede ver entidades registradas
 router.get("/", verifyToken, authorize(["superadmin"]), getEntities);
